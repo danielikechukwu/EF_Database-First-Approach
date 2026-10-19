@@ -72,8 +72,8 @@ public partial class EF_DatabaseFirstApproachDbContext : DbContext
 
     public virtual DbSet<StockTransactionMaster> StockTransactionMasters { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseSqlServer("Name=ConnectionStrings:EF_DatabaseFirstConnection");
+    //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    //    => optionsBuilder.UseSqlServer("Name=ConnectionStrings:EF_DatabaseFirstConnection");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
