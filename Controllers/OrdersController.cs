@@ -24,26 +24,12 @@ namespace EF_DatabaseFirstApproach.Controllers
             _config = config;
         }
 
-        // GET: api/<OrdersController>
-        [HttpGet]
-        public IEnumerable<string> Get()
-        {
-            return new string[] { "value1", "value2" };
-        }
-
-        // GET api/<OrdersController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
-        {
-            return "value";
-        }
-
         // POST api/<OrdersController>
         [HttpPost("Place")]
         public async Task<IActionResult> PlaceOrder([FromBody] OrderCreateDTO dto)
         {
             // Validate basic DTO structure before processing
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 return BadRequest(new
                 {
@@ -51,6 +37,8 @@ namespace EF_DatabaseFirstApproach.Controllers
                     Message = "Validation failed.",
                     Errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)
                 });
+
+            }
 
                 // Check whether the customer exists
                 var customer = await _context.Customers.FirstOrDefaultAsync(c => c.CustomerId == dto.CustomerId);
@@ -64,10 +52,13 @@ namespace EF_DatabaseFirstApproach.Controllers
                     });
                 }
 
-                // Validate that shipping and billing addresses belong to the same customer
-                var addresses = await _context.Addresses.AsNoTracking().Where(a => a.CustomerId == dto.CustomerId && (a.AddressId == dto.ShippingAddressId || a.AddressId == dto.BillingAddressId)).ToListAsync();
+            // Validate that shipping and billing addresses belong to the same customer
+            var addresses = await _context.Addresses
+                .AsNoTracking()
+                .Where(a => a.CustomerId == dto.CustomerId)
+                .ToListAsync();
 
-                if(addresses.Count != 2)
+            if (addresses.Count != 2)
                 {
                     return BadRequest(new
                     {
@@ -83,7 +74,7 @@ namespace EF_DatabaseFirstApproach.Controllers
                 // Convert address snapshots to JSON to store inside the order record
                 string shippingAddressJson = JsonSerializer.Serialize(shippingAddress);
 
-                string billingAddressJson = JsonSerializer.Serialize(billingAddressJson);
+                string billingAddressJson = JsonSerializer.Serialize(billingAddress);
 
                 // Ensure order contains at least one item
                 if(dto.OrderItems.Count == 0 || dto.OrderItems == null)
@@ -334,19 +325,7 @@ namespace EF_DatabaseFirstApproach.Controllers
                         Error = ex.Message
                     });
                 }
-            }
         }
 
-        // PUT api/<OrdersController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/<OrdersController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
-        }
     }
 }
